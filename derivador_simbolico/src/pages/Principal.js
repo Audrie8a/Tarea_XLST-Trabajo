@@ -20,11 +20,11 @@ class Principal extends React.Component {
           ...this.state.answer,
           answer: respuesta,
         });
-        alert(msm);
+        //alert(msm);
       })
       .catch((error) => {
         console.log(error.message);
-        alert("Ocurrió un error al Derivar!");
+        //alert("Ocurrió un error al Derivar!");
       });
   };
 
