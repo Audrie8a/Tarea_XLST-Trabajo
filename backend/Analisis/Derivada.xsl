@@ -11,11 +11,15 @@
   <xsl:template match ="/">
     
     
+    <xsl:variable name="respuesta" >
+      <xsl:call-template name="derivada">
+        <xsl:with-param name="node" select="f//*" />
+        <xsl:with-param name="index" select="1"/>
+      </xsl:call-template>
+    </xsl:variable>
     
-    <xsl:call-template name="derivada">
-      <xsl:with-param name="node" select="f//*" />
-      <xsl:with-param name="index" select="1"/>
-    </xsl:call-template>
+    <xsl:value-of select="$respuesta"/>
+    <xsl:value-of select="$respuesta"/>
     
     
   </xsl:template>
@@ -40,36 +44,40 @@
         
         <xsl:choose>
           <xsl:when test="name($node/following-sibling::*)=''">
-            <xsl:text>       Bro Izq: </xsl:text>
-            <xsl:value-of select="name($node/preceding-sibling::*)"/>
-          </xsl:when>
+            <!-- <xsl:text>       Bro Izq: </xsl:text>
+                 <xsl:value-of select="name($node/preceding-sibling::*)"/> -->
+             </xsl:when>
           <xsl:when test="name($node/following-sibling::*)='' and name($node/preceding-sibling::*)=''">
-            <xsl:text>       Hijo_Unico </xsl:text>
+            <!-- <xsl:text>       Hijo_Unico </xsl:text> -->
           </xsl:when>
           <xsl:otherwise>
-            <xsl:text>       Bro Der: </xsl:text>
-            <xsl:value-of select="name($node/following-sibling::*)"/>
+            <!-- <xsl:text>       Bro Der: </xsl:text>
+                 <xsl:value-of select="name($node/following-sibling::*)"/> -->
+            
+            <xsl:value-of select="name($node/ancestor::*)"/>
           </xsl:otherwise>
         </xsl:choose>
-        <xsl:value-of select="$newline"/>
         
       </xsl:when>
       <xsl:when test="name($node)='var'">
         <xsl:value-of select="$node"/>
+        
         <xsl:choose>
           <xsl:when test="name($node/following-sibling::*)=''">
-            <xsl:text>       Bro Izq: </xsl:text>
-            <xsl:value-of select="name($node/preceding-sibling::*)"/>
-          </xsl:when>
+            <!-- <xsl:text>       Bro Izq: </xsl:text>
+                 <xsl:value-of select="name($node/preceding-sibling::*)"/> -->
+             </xsl:when>
           <xsl:when test="name($node/following-sibling::*)='' and name($node/preceding-sibling::*)=''">
-            <xsl:text>       Hijo_Unico </xsl:text>
+            <!-- <xsl:text>       Hijo_Unico </xsl:text> -->
           </xsl:when>
           <xsl:otherwise>
-            <xsl:text>       Bro Der: </xsl:text>
-            <xsl:value-of select="name($node/following-sibling::*)"/>
+            <!-- <xsl:text>       Bro Der: </xsl:text>
+                 <xsl:value-of select="name($node/following-sibling::*)"/> -->
+            
+            <xsl:value-of select="name($node/ancestor::*)"/>
           </xsl:otherwise>
         </xsl:choose>
-        <xsl:value-of select="$newline"/>
+        
       </xsl:when>
     </xsl:choose>
     
