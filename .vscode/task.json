@@ -1,0 +1,21 @@
+{
+  "version": "2.0.0",
+  "tasks":[
+    {
+      "type": "xslt-js",
+      "label": "Demo1 ",
+      "nodeModulesFolder": "${workspaceFolder}/node_modules",
+      "xsltFile": "${workspaceFolder}/backend/Analisis/Derivada.xsl",
+      "xmlSource": "${workspaceFolder}/backend/Analisis/Func.xml",
+      "resultPath": "${workspaceFolder}/xslt-out/result1. xml",
+      "group":{
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher":[
+        "$saxon-xslt-js"
+      ]
+
+    }
+  ]
+}

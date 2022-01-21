@@ -1,0 +1,29 @@
+<Program>
+  <Event>
+    <StartTime units="us">5</StartTime>
+    <LaserOn channel="HeNe Laser"/>
+    <LserOn channel = "TiSaph Laser"/>
+  </Event>
+  <Event>
+    <StartTime units="us">15</StartTime>
+    <LaserOff channel="HeNe Laser"/>
+  </Event>
+  <Event>
+    <StartTime units ="us">55</StartTime>
+    <LaserOn channel="HeNe Laser"/>
+    <LserOn channel = "TiSaph Laser"/>
+  </Event>
+  <Event>
+    <StartTime units="us">125</StartTime>
+    <LaserOff channel="HeNe Laser"/>
+  </Event>
+  <Event>
+    <StartTime units ="us">905</StartTime>
+    <LaserOn channel="HeNe Laser"/>
+    <LserOn channel = "TiSaph Laser"/>
+  </Event>
+  <Event>
+    <StartTime units="us">1500</StartTime>
+    <LaserOff channel="HeNe Laser"/>
+  </Event>
+</Program>
