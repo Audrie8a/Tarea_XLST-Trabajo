@@ -1,10 +1,18 @@
 const xml2js = require("xml2js");
 const math = require("mathjs");
+const { index } = require("mathjs");
 
-var funciones = ["log", "sin", "cos", "tan", "sin", "cot", "sec", "cosec"];
 let resultInOrder = [];
 let treeXml_Lst = [];
 let expresionsLst = [];
+let resultInOrderDerive = [];
+let operadores = [
+  ["+", "plus"],
+  ["-", "subs"],
+  ["*", "times"],
+  ["/", "div"],
+  ["^", "power"],
+];
 
 //Obtiene el arbol de etiquetas y lo deriva
 exports.TreeXml = (Entrada) => {
@@ -77,11 +85,11 @@ function structDeriveTree(derivada, padre) {
   for (node in derivada) {
     padre = derivada["op"];
     structDeriveTree(derivada["args"], padre);
-    console.log(node);
   }
 }
 // Deriva Expresiones
 function deriveExp(exp) {
+  console.log(exp);
   return math.derivative(exp[0], exp[1]);
 }
 
@@ -208,37 +216,125 @@ function exp_to_string(exp) {
   }
   return [expresion, variable];
 }
-// function StructTree(json, etq, numTabs, numChilds) {
-//   for (var key in json) {
-//     if (key != "0") {
-//       console.log(etq + key);
-//       for (op in operadores) {
-//         if (key == operadores[op]) {
-//           padre = key;
-//           break;
-//         }
-//       }
-//     }
 
-//     if (json[key] == "[object Object]") {
-//       let auxStr = JSON.stringify(json[key]);
-//       let aux = JSON.parse(auxStr);
-//       let contador = numTabs;
-//       let tabs = "";
-//       while (contador != 0) {
-//         tabs += "\t";
-//         contador--;
-//       }
+//Obtiene las etiquetas del Nuevo XML
+function Nuevas_etqXML_InOrden(nodo) {
+  if (nodo) {
+    if (nodo.hasOwnProperty("args")) {
+      Nuevas_etqXML(nodo["args"][0]);
+    }
 
-//       StructTree(aux, tabs + "hijo -> ", numTabs + 1);
-//     } else {
-//       let contador = numTabs;
-//       let tabs = "";
-//       while (contador != 0) {
-//         tabs += "\t";
-//         contador--;
-//       }
-//       console.log(tabs + "\tvalor -> " + json[key]);
-//     }
-//   }
-// }
+    if (nodo.hasOwnProperty("op")) {
+      resultInOrderDerive.push(nodo["op"]);
+    } else if (nodo.hasOwnProperty("name")) {
+      resultInOrderDerive.push(nodo["name"]);
+    } else if (nodo.hasOwnProperty("value")) {
+      resultInOrderDerive.push(nodo["value"]);
+    }
+
+    if (nodo.hasOwnProperty("args")) {
+      Nuevas_etqXML(nodo["args"][1]);
+    }
+  }
+}
+
+function Nuevas_etqXML(nodo, contador) {
+  if (nodo) {
+    if (nodo.hasOwnProperty("op")) {
+      resultInOrderDerive.push([nodo["op"], contador, "op"]);
+      console.log("<", nodo["op"], ">");
+    } else if (nodo.hasOwnProperty("name")) {
+      resultInOrderDerive.push([nodo["name"], contador, "var"]);
+      console.log("<var>" + nodo["value"] + "</var>");
+      return;
+    } else if (nodo.hasOwnProperty("value")) {
+      resultInOrderDerive.push([nodo["value"], contador, "const"]);
+      console.log("<const>" + nodo["value"] + "</const>");
+      return;
+    }
+
+    if (nodo.hasOwnProperty("args")) {
+      for (etq in nodo["args"]) {
+        Nuevas_etqXML(nodo["args"][etq], contador + 1);
+      }
+    }
+
+    if (nodo.hasOwnProperty("op")) {
+      resultInOrderDerive.push([nodo["op"], contador, "op"]);
+      console.log("</", nodo["op"], ">");
+    }
+  }
+}
+
+exports.NuevoXML = (nodo) => {
+  // Nuevas_etqXML_InOrden(nodo);
+  // console.log("EtiquetasOrden: -------", resultInOrderDerive);
+  resultInOrderDerive = [];
+  Nuevas_etqXML(nodo, 0);
+  console.log("Etiquetas: -------", resultInOrderDerive);
+  let xml = construirXML("", 0, "");
+  return xml;
+};
+
+function construirXML(xml, nivel) {
+  let banderaEntrada = false;
+  for (element in resultInOrderDerive) {
+    tag = resultInOrderDerive[element];
+    let tabs = nivel;
+    let strTabs = "";
+
+    if (tag[1] == nivel && tag[2] == "op") {
+      banderaEntrada = true;
+      while (tabs != 0) {
+        strTabs += "\t";
+        tabs--;
+      }
+      xml += strTabs + "<";
+      let simbolo = "";
+
+      switch (tag[0]) {
+        case "+":
+          simbolo = "plus";
+          break;
+        case "-":
+          simbolo = "subs";
+          break;
+        case "/":
+          simbolo = "div";
+          break;
+        case "*":
+          simbolo = "times";
+          break;
+        case "^":
+          simbolo = "power";
+          break;
+        default:
+          break;
+      }
+
+      xml += simbolo + ">\n";
+      if (element + 1 < resultInOrderDerive.length) {
+        let aux = resultInOrderDerive[element + 1][1];
+        if (aux != nivel) {
+          return;
+        }
+      }
+      xml = construirXML(xml, nivel + 1);
+      xml += strTabs + "</" + simbolo + ">\n";
+    } else if (tag[1] == nivel && (tag[2] == "const" || tag[2] == "var")) {
+      banderaEntrada = true;
+      while (tabs != 0) {
+        xml += "\t";
+        tabs--;
+      }
+      xml += `<${tag[2]}>${tag[0]}</${tag[2]}>\n`;
+      // if (element + 1 < resultInOrderDerive.length) {
+      //   let aux = resultInOrderDerive[element + 1][1];
+      //   if (aux != nivel) {
+      //     return;
+      //   }
+      // }
+    }
+  }
+  return xml;
+}
