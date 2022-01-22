@@ -240,59 +240,15 @@ function Nuevas_etqXML_InOrden(nodo) {
 
 function Nuevas_etqXML(nodo, contador) {
   if (nodo) {
+    let tabs = "";
+    let aux = contador + 1;
+    let simbolo = "";
+    while (aux != 0) {
+      tabs += "\t";
+      aux--;
+    }
     if (nodo.hasOwnProperty("op")) {
-      resultInOrderDerive.push([nodo["op"], contador, "op"]);
-      console.log("<", nodo["op"], ">");
-    } else if (nodo.hasOwnProperty("name")) {
-      resultInOrderDerive.push([nodo["name"], contador, "var"]);
-      console.log("<var>" + nodo["value"] + "</var>");
-      return;
-    } else if (nodo.hasOwnProperty("value")) {
-      resultInOrderDerive.push([nodo["value"], contador, "const"]);
-      console.log("<const>" + nodo["value"] + "</const>");
-      return;
-    }
-
-    if (nodo.hasOwnProperty("args")) {
-      for (etq in nodo["args"]) {
-        Nuevas_etqXML(nodo["args"][etq], contador + 1);
-      }
-    }
-
-    if (nodo.hasOwnProperty("op")) {
-      resultInOrderDerive.push([nodo["op"], contador, "op"]);
-      console.log("</", nodo["op"], ">");
-    }
-  }
-}
-
-exports.NuevoXML = (nodo) => {
-  // Nuevas_etqXML_InOrden(nodo);
-  // console.log("EtiquetasOrden: -------", resultInOrderDerive);
-  resultInOrderDerive = [];
-  Nuevas_etqXML(nodo, 0);
-  console.log("Etiquetas: -------", resultInOrderDerive);
-  let xml = construirXML("", 0, "");
-  return xml;
-};
-
-function construirXML(xml, nivel) {
-  let banderaEntrada = false;
-  for (element in resultInOrderDerive) {
-    tag = resultInOrderDerive[element];
-    let tabs = nivel;
-    let strTabs = "";
-
-    if (tag[1] == nivel && tag[2] == "op") {
-      banderaEntrada = true;
-      while (tabs != 0) {
-        strTabs += "\t";
-        tabs--;
-      }
-      xml += strTabs + "<";
-      let simbolo = "";
-
-      switch (tag[0]) {
+      switch (nodo["op"]) {
         case "+":
           simbolo = "plus";
           break;
@@ -311,30 +267,46 @@ function construirXML(xml, nivel) {
         default:
           break;
       }
+      resultInOrderDerive.push(tabs + "<" + simbolo + ">\n");
+      console.log("<", simbolo, ">");
+    } else if (nodo.hasOwnProperty("name")) {
+      resultInOrderDerive.push(tabs + "<var>" + nodo["name"] + "</var>\n");
+      console.log(tabs + "<var>" + nodo["name"] + "</var>");
+      return;
+    } else if (nodo.hasOwnProperty("value")) {
+      resultInOrderDerive.push(tabs + "<const>" + nodo["value"] + "</const>\n");
+      console.log(tabs + "<const>" + nodo["value"] + "</const>\n");
+      return;
+    }
 
-      xml += simbolo + ">\n";
-      if (element + 1 < resultInOrderDerive.length) {
-        let aux = resultInOrderDerive[element + 1][1];
-        if (aux != nivel) {
-          return;
-        }
+    if (nodo.hasOwnProperty("args")) {
+      for (etq in nodo["args"]) {
+        Nuevas_etqXML(nodo["args"][etq], contador + 1);
       }
-      xml = construirXML(xml, nivel + 1);
-      xml += strTabs + "</" + simbolo + ">\n";
-    } else if (tag[1] == nivel && (tag[2] == "const" || tag[2] == "var")) {
-      banderaEntrada = true;
-      while (tabs != 0) {
-        xml += "\t";
-        tabs--;
-      }
-      xml += `<${tag[2]}>${tag[0]}</${tag[2]}>\n`;
-      // if (element + 1 < resultInOrderDerive.length) {
-      //   let aux = resultInOrderDerive[element + 1][1];
-      //   if (aux != nivel) {
-      //     return;
-      //   }
-      // }
+    }
+
+    if (nodo.hasOwnProperty("op")) {
+      resultInOrderDerive.push(tabs + "</" + simbolo + ">\n");
+      console.log(tabs + "</", simbolo, ">");
     }
   }
+}
+
+exports.NuevoXML = (nodo) => {
+  // Nuevas_etqXML_InOrden(nodo);
+  // console.log("EtiquetasOrden: -------", resultInOrderDerive);
+  resultInOrderDerive = [];
+  Nuevas_etqXML(nodo, 0);
+  console.log("Etiquetas: -------", resultInOrderDerive);
+  let xml = construirXML();
   return xml;
+};
+
+function construirXML() {
+  let xml = "";
+  for (tag in resultInOrderDerive) {
+    xml += resultInOrderDerive[tag];
+  }
+
+  return "<f>\n" + xml + "</f>";
 }

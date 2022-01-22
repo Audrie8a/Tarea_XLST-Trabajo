@@ -12,3 +12,5 @@ exports.derive = async (req, res) => {
     res.status(500).send(JSON({ mensaje: "Error al derivar!", error: error }));
   }
 };
+
+// exports.derive_Node
