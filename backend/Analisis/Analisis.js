@@ -7,9 +7,9 @@ const Arbol = require("./ArbolXml");
 exports.Derivar = (xml) => {
   try {
     let xmlDerivada = getXSLT(xml);
-    let tree_xslt = treeDerivada(xmlDerivada);
-    let newEtq_XML = Arbol.NuevoXML(tree_xslt);
-    return { mensaje: "Derivado!", respuesta: newEtq_XML };
+    // let tree_xslt = treeDerivada(xmlDerivada);
+    // let newEtq_XML = Arbol.NuevoXML(tree_xslt);
+    return { mensaje: "Derivado!", respuesta: xmlDerivada };
   } catch (error) {
     console.log(error);
     return { mensaje: "Error", respuesta: "Error al Derivar!" };
