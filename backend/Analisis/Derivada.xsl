@@ -4,7 +4,7 @@
   
   <xsl:output indent="no" method="text"/>
   <xsl:variable name="espacio" ><xsl:text>  </xsl:text></xsl:variable>
-  <xsl:variable name="texto"><xsl:text> </xsl:text></xsl:variable>
+  <xsl:variable name="texto"><xsl:text></xsl:text></xsl:variable>
   <xsl:variable name='newline'><xsl:text>
   
   
@@ -34,28 +34,28 @@
     <xsl:param name="index"/>
     <xsl:param name="limit"/>
     
-    <xsl:text>Index</xsl:text>
-    <xsl:value-of select="$index"/>
-    <xsl:value-of select="$espacio"/>
-    <xsl:value-of select="concat($texto,'Posición')"/>
-    <xsl:value-of select="position()"/>
-    <xsl:value-of select="$espacio"/>
-    <xsl:value-of select="concat($texto, 'Etiqueta: ')"/>
-    <xsl:value-of select="name($node)"/>
     
-    <xsl:if test="name($node)='var' or name($node)='const'">
-      <xsl:value-of select="concat($texto, 'Valor: ')"/>
-      <xsl:value-of select="$node"/>
-    </xsl:if>
     
-    <xsl:value-of select="$newline"/>
+    <!-- <xsl:text>Index</xsl:text>
+         <xsl:value-of select="$index"/>
+         <xsl:value-of select="$espacio"/>
+         <xsl:value-of select="concat($texto,'Posición')"/>
+         <xsl:value-of select="position()"/>
+         <xsl:value-of select="$espacio"/>
+         <xsl:value-of select="concat($texto, 'Etiqueta: ')"/>
+         <xsl:value-of select="name($node)"/>
+         
+         <xsl:if test="name($node)='var' or name($node)='const'">
+         <xsl:value-of select="concat($texto, 'Valor: ')"/>
+         <xsl:value-of select="$node"/>
+         </xsl:if>
+         
+         <xsl:value-of select="$newline"/> -->
     
     
     <!-- Recorrer por la izq -->
     <xsl:if test="$index !=$limit">
       <xsl:if test="name($node/child::*[1])!=''">
-        <xsl:value-of select="concat($texto,'RECORRIDO POR LA IZQUIERDA!')"/>
-        <xsl:value-of select="$newline"/>
         <xsl:call-template name="derivada">
           <xsl:with-param name="node" select="$node/child::*[1]"/>
           <xsl:with-param name="index" select="$index+1"/>
@@ -64,12 +64,35 @@
       </xsl:if>
       
       
+      <xsl:choose>
+        
+        <xsl:when test="name($node)='var'">
+          <xsl:value-of select="$node"/>  
+        </xsl:when>
+        <xsl:when test="name($node)='const' ">
+          <xsl:value-of select="$node"/>  
+        </xsl:when>
+        
+        <xsl:when test="name($node)='plus'">
+          <xsl:value-of select="concat($texto,'+')"/>
+        </xsl:when>
+        <xsl:when test="name($node)='sub'">
+          <xsl:value-of select="concat($texto,'-')"/>
+        </xsl:when>
+        <xsl:when test="name($node)='times'">
+          <xsl:value-of select="concat($texto,'*')"/>
+        </xsl:when>
+        <xsl:when test="name($node)='div'">
+          <xsl:value-of select="concat($texto,'/')"/>
+        </xsl:when>
+        <xsl:when test="'power'">
+          <xsl:value-of select="concat($texto,'^')"/>
+        </xsl:when>
+      </xsl:choose>
       
       <!-- Recorrer por la izq -->
       <xsl:if test="$index !=$limit">
         <xsl:if test="name($node/child::*[2])!=''">
-          <xsl:value-of select="concat($texto,'RECORRIDO POR LA DERECHA!')"/>
-          <xsl:value-of select="$newline"/>
           <xsl:call-template name="derivada">
             <xsl:with-param name="node" select="$node/child::*[2]"/>
             <xsl:with-param name="index" select="$index+1"/>
