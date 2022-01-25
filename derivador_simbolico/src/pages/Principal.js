@@ -28,6 +28,24 @@ class Principal extends React.Component {
       });
   };
 
+  fetchDeriveXSLT = async () => {
+    await axios
+      .post("http://localhost:5000/deriveXSLT", { data: this.state.data })
+      .then((response) => {
+        const { data } = response;
+        let jsonObj = JSON.stringify(data);
+        let { msm, respuesta } = JSON.parse(jsonObj);
+        this.setState({
+          ...this.state.answer,
+          answer: respuesta,
+        });
+        //alert(msm);
+      })
+      .catch((error) => {
+        console.log(error.message);
+        //alert("Ocurrió un error al Derivar!");
+      });
+  };
   handleChangeEvent = (e) => {
     this.setState({
       ...this.state,
@@ -35,16 +53,21 @@ class Principal extends React.Component {
     });
   };
 
-  handleGetData = async (e) => {
+  handleGetDataNode = async (e) => {
     e.preventDefault();
-    //console.log(this.state.data);
     await this.fetchDerive();
+    console.log(this.state.answer);
+  };
 
+  handleGetDataXSLT = async (e) => {
+    e.preventDefault();
+    await this.fetchDeriveXSLT();
     console.log(this.state.answer);
   };
 
   handleLimpiar = (e) => {
     e.preventDefault();
+
     this.setState({
       ...this.state.answer,
       answer: "",
@@ -55,19 +78,30 @@ class Principal extends React.Component {
       <div className="row">
         <div className="col-md">
           <Editor
-            name="Derivar"
+            lstBotones={[
+              [
+                "Derivar XSLT",
+                "btn btn-success btn-block",
+                this.handleGetDataXSLT,
+              ],
+              [
+                "Derivar Node",
+                "btn btn-success btn-block",
+                this.handleGetDataNode,
+              ],
+            ]}
             mode={false}
             placeholder="write here"
-            func={this.handleGetData}
             handleChange={this.handleChangeEvent}
           />
         </div>
         <div className="col-md">
           <Editor
-            name="Limpiar"
+            lstBotones={[
+              ["Limpiar", "btn btn-success btn-block", this.handleLimpiar],
+            ]}
             mode={true}
             placeholder=""
-            func={this.handleLimpiar}
             textValue={this.state.answer}
           />
         </div>

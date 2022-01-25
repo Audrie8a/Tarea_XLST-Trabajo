@@ -1,6 +1,14 @@
 import React from "react";
+import BotonsList from "../components/BotonsList";
 
-const Editor = ({ name, func, handleChange, mode, placeholder, textValue }) => {
+const Editor = ({
+  lstBotones,
+  func,
+  handleChange,
+  mode,
+  placeholder,
+  textValue,
+}) => {
   return (
     <div className="container p-4">
       <div className="row">
@@ -19,12 +27,7 @@ const Editor = ({ name, func, handleChange, mode, placeholder, textValue }) => {
                 ></textarea>
               </div>
               <br />
-              <input
-                type="submit"
-                className="btn btn-success btn-block"
-                name={"btn_" + name}
-                value={name}
-              />
+              <BotonsList botones={lstBotones} />
             </form>
           </div>
         </div>
