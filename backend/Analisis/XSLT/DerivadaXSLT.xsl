@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0"
-                xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:user="urn:my-scripts" version="1.0" exclude-result-prefixes="msxsl user">
+  
   
   <xsl:output indent="no" method="text"/>
   <xsl:variable name="espacio" ><xsl:text>  </xsl:text></xsl:variable>
@@ -11,82 +11,630 @@
 
   </xsl:text></xsl:variable>
   
-  <xsl:template match ="/">
+  <xsl:template match ="/">    
+    
+    <xsl:apply-templates />
     
     
-    <xsl:variable name="respuesta" >
-      <xsl:call-template name="derivada">
-        <xsl:with-param name="node" select="f//*" />
-        <xsl:with-param name="index" select="1"/>
-        <xsl:with-param name="limit" select="count(child::f//*)"/>
-      </xsl:call-template>
-    </xsl:variable>
-    
-    
-    <xsl:value-of select="$respuesta"/>
   </xsl:template>
   
+  <xsl:template match="f" >
+    
+    <f>
+      
+      <xsl:apply-templates />
+    </f>
+    
+    
+    
+  </xsl:template>
   
+  <xsl:template match="pluss" >
+    <xsl:variable name="left">
+      <xsl:apply-templates select="./child::*[1]"/>
+    </xsl:variable>
+    <xsl:value-of select="number($left)-1"/>
+  </xsl:template>
   
-  <xsl:template name="derivada" >
+  <xsl:template name="function" >
     <xsl:param name="node" />
-    <xsl:param name="index"/>
-    <xsl:param name="limit"/>
+    
     
     <xsl:choose>
       
       <xsl:when test="name($node)='var'">
-        <xsl:value-of select="$node"/>          
+        <var>
+          <xsl:value-of select="concat('_',$node)"/>
+        </var>
+        
       </xsl:when>
       <xsl:when test="name($node)='const' ">
-        <xsl:value-of select="$node"/>          
+        <const>
+          <xsl:value-of select="concat('_',$node)"/> 
+        </const>
+        
       </xsl:when>
-      
+      <xsl:when test="name($node)='plus'">
+        <plus>
+          <!-- Recorrer por la izq -->
+          <xsl:call-template name="function">
+            <xsl:with-param name="node" select="$node/child::*[1]"/>
+          </xsl:call-template>
+          
+          
+          <!-- Recorrer por la der -->
+          <xsl:call-template name="function">
+            <xsl:with-param name="node" select="$node/child::*[2]"/>
+          </xsl:call-template>
+          
+        </plus>
+      </xsl:when>
+      <xsl:when test="name($node)='subs'">
+        <subs>
+          <!-- Recorrer por la izq -->
+          <xsl:call-template name="function">
+            <xsl:with-param name="node" select="$node/child::*[1]"/>
+          </xsl:call-template>
+          
+          
+          <!-- Recorrer por la der -->
+          <xsl:call-template name="function">
+            <xsl:with-param name="node" select="$node/child::*[2]"/>
+          </xsl:call-template>
+          
+        </subs>
+        
+      </xsl:when>
+      <xsl:when test="name($node)='times'">
+        <times>
+          <!-- Recorrer por la izq -->
+          <xsl:call-template name="function">
+            <xsl:with-param name="node" select="$node/child::*[1]"/>
+          </xsl:call-template>
+          
+          
+          <!-- Recorrer por la der -->
+          <xsl:call-template name="function">
+            <xsl:with-param name="node" select="$node/child::*[2]"/>
+          </xsl:call-template>
+        </times>
+      </xsl:when>
+      <xsl:when test="name($node)='div'">
+        <div>
+          <!-- Recorrer por la izq -->
+          <xsl:call-template name="function">
+            <xsl:with-param name="node" select="$node/child::*[1]"/>
+          </xsl:call-template>
+          
+          
+          <!-- Recorrer por la der -->
+          <xsl:call-template name="function">
+            <xsl:with-param name="node" select="$node/child::*[2]"/>
+          </xsl:call-template>
+        </div>
+      </xsl:when>
+      <xsl:when test="'power'">
+        <power>
+          <!-- Recorrer por la izq -->
+          <xsl:call-template name="function">
+            <xsl:with-param name="node" select="$node/child::*[1]"/>
+          </xsl:call-template>
+          
+          
+          <!-- Recorrer por la der -->
+          <xsl:call-template name="function">
+            <xsl:with-param name="node" select="$node/child::*[2]"/>
+          </xsl:call-template>
+        </power>
+      </xsl:when>
     </xsl:choose>
     
-    <xsl:variable name="left">
-      <!-- Recorrer por la izq -->
-      <xsl:if test="name($node)!='const'">
-        <xsl:if test="name($node)!='var'">
-          <xsl:call-template name="derivada">
-            <xsl:with-param name="node" select="$node/child::*[1]"/>
-            <xsl:with-param name="index" select="$index+1"/>
-            <xsl:with-param name="limit" select="$limit"/>
-          </xsl:call-template>
-        </xsl:if>
-        
-      </xsl:if>
-    </xsl:variable>
-    
-    
-    <xsl:variable name="right" >
-      
-      <!-- Recorrer por la der -->
-      <xsl:if test="name($node)!='const'">
-        <xsl:if test="name($node)!='var'">
-          <xsl:call-template name="derivada">
-            <xsl:with-param name="node" select="$node/child::*[2]"/>
-            <xsl:with-param name="index" select="$index+1"/>
-            <xsl:with-param name="limit" select="$limit"/>
-          </xsl:call-template>
-        </xsl:if>        
-      </xsl:if>
-      
-    </xsl:variable>
-    
-    <xsl:if test="name($node)!='const'">
-      <xsl:if test="name($node)!='var'">
-        <xsl:value-of select="concat($newline,'Ronda',$index,': ')"/>
-        <xsl:value-of select="concat($left,name($node),$right,$newline)"/>
-      </xsl:if>
-      
-    </xsl:if>
-    
-    
-    
-    
   </xsl:template>
-  
-  
-  
-</xsl:stylesheet>
+  <!-- SUMA---------------------------------------------------------------------------------------------------- -->
+       <xsl:template match="plus" >
+       
+       <xsl:variable name="left">
+       <xsl:apply-templates select="./child::*[1]"/>
+       </xsl:variable>
+       
+       <xsl:variable name="right">
+       <xsl:apply-templates select="./child::*[2]"/>
+       </xsl:variable>
+       
+       
+       
+       <xsl:value-of select="$newline"/>
+  <!-- <xsl:value-of select="concat('Numero Izq: ',number($left)=$left,'     Var Izq: ',number($left)!=$left and string-length($left)=1,$newline )"/>
+       <xsl:value-of select="concat('Numero Der: ',number($right)=$right,'     Var Izq: ',number($right)!=$right and string-length($right)=1,$newline )"/> -->
+       
+       
+       
+       
+       <xsl:choose>
+       
+       <xsl:when test="number($left)=$left">       
+       <xsl:choose>
+  <!-- L: cte    R: cte -->
+       <xsl:when test="number($right)=$right">
+       <const>
+       <xsl:value-of select="concat($texto,'_0')"/>
+       </const>
+       </xsl:when>
+       
+  <!-- L: cte    R: var -->
+       <xsl:when  test="number($right)!=$right and string-length($right)=1">
+       <const>
+       <xsl:value-of select="concat($texto,'_1')"/>
+       </const>
+       </xsl:when>
+       <xsl:otherwise>
+  <!--L: cte    R: ninguna  -->
+       <xsl:apply-templates select="./child::*[2]"/>
+       </xsl:otherwise>
+       </xsl:choose>   
+       </xsl:when>    
+       
+       
+       
+       
+       <xsl:when test="number($left)!=$left and string-length($left)=1">
+       
+       <xsl:choose>
+  <!-- L: var    R: cte -->
+       <xsl:when test="number($right)=$right">
+       <const>
+       <xsl:value-of select="concat($texto,'_1')"/>
+       </const>
+       </xsl:when>
+       
+  <!-- L: var    R: var -->
+       <xsl:when  test="number($right)!=$right and string-length($right)=1">
+       <const>
+       <xsl:value-of select="concat($texto,'_2')"/>
+       </const>
+       </xsl:when>
+       
+  <!--L: var    R: ninguna  -->
+       <xsl:otherwise>       
+       <plus>
+       <const>
+       <xsl:value-of select="concat($texto,'_1')"/>
+       </const>
+       <xsl:apply-templates select="./child::*[2]"/>
+       </plus>
+       </xsl:otherwise>
+       
+       </xsl:choose> 
+       </xsl:when>
+       
+       
+       </xsl:choose>
+       
+       <xsl:value-of select="$newline"/>
+       
+       </xsl:template>
+       
+  <!-- RESTA-------------------------------------------------------------------------------------------------- -->
+       <xsl:template match="subs" >
+       <xsl:variable name="left">
+       <xsl:apply-templates select="./child::*[1]"/>
+       </xsl:variable>
+       
+       <xsl:variable name="right">
+       <xsl:apply-templates select="./child::*[2]"/>
+       </xsl:variable>
+       
+       
+       
+       
+       <xsl:choose>
+       
+       <xsl:when test="number($left)=$left">       
+       <xsl:choose>
+  <!-- L: cte    R: cte -->
+       <xsl:when test="number($right)=$right">
+       <const>
+       <xsl:value-of select="concat($texto,'_0')"/>
+       </const>
+       </xsl:when>
+       
+  <!-- L: cte    R: var -->
+       <xsl:when  test="number($right)!=$right and string-length($right)=1">
+       <subs>
+       <const>
+       <xsl:value-of select="concat($texto,'_0')"/>
+       </const>
+       <const>
+       <xsl:value-of select="concat($texto,'_1')"/>
+       </const>
+       </subs>
+       
+       </xsl:when>
+  <!-- L: cte    R: ninguna -->
+       <xsl:otherwise>
+       <subs>
+       <const>
+       <xsl:value-of select="concat($texto,'_0')"/>
+       </const>
+       <xsl:apply-templates select="./child::*[2]"/>
+       </subs>
+       </xsl:otherwise>
+       </xsl:choose>   
+       </xsl:when>
+       
+       <xsl:when test="number($left)!=$left and string-length($left)=1">
+       <xsl:choose>
+  <!-- L: var    R: cte -->
+       <xsl:when test="number($right)=$right">
+       <const>
+       <xsl:value-of select="concat($texto,'_1')"/>
+       </const>
+       </xsl:when>
+       
+  <!-- L: var    R: var -->
+       <xsl:when  test="number($right)!=$right and string-length($right)=1">
+       <const>
+       <xsl:value-of select="concat($texto,'_0')"/>
+       </const>
+       </xsl:when>
+  <!-- L: var    R: ninguna -->
+       <xsl:otherwise>
+       <subs>
+       <const>
+       <xsl:value-of select="concat($texto,'_1')"/>
+       </const>
+       <xsl:apply-templates select="./child::*[2]"/>
+       </subs>
+       </xsl:otherwise>
+       </xsl:choose> 
+       </xsl:when>
+       </xsl:choose>
+       
+       <xsl:value-of select="$newline"/>
+       
+       </xsl:template>
+       
+  <!-- MULTIPLICACION----------------------------------------------------------------------------------------- -->
+       <xsl:template match="times" >
+       <xsl:variable name="left">
+       <xsl:apply-templates select="./child::*[1]"/>
+       </xsl:variable>
+       
+       <xsl:variable name="right">
+       <xsl:apply-templates select="./child::*[2]"/>
+       </xsl:variable>
+       
+       
+       
+       <xsl:choose>
+       
+       <xsl:when test="number($left)=$left">       
+       <xsl:choose>
+  <!-- L: cte    R: cte -->
+       <xsl:when test="number($right)=$right">
+       <const>
+       <xsl:value-of select="concat($texto,'_0')"/>
+       </const>
+       </xsl:when>
+       
+  <!-- L: cte    R: var -->
+       <xsl:when  test="number($right)!=$right and string-length($right)=1">
+       <const>
+       <xsl:value-of select="concat($texto,'_0')"/>
+       </const>
+       </xsl:when>
+  <!-- L: cte    R: ninguna -->
+       <xsl:otherwise>
+       
+       <times>
+       <xsl:apply-templates select="./child::*[2]"/>
+       <const>
+       <xsl:value-of select="concat($texto,'_',$left)"/>
+       </const>
+       </times>
+       </xsl:otherwise>
+       </xsl:choose>   
+       </xsl:when>
+       
+       <xsl:when test="number($left)!=$left and string-length($left)=1">
+       
+       <xsl:choose>
+  <!-- L: var    R: cte -->
+       <xsl:when test="number($right)=$right">
+       <const>
+       <xsl:value-of select="concat($texto,'_',$right)"/>
+       </const>
+       </xsl:when>
+       
+  <!-- L: var    R: var -->
+       <xsl:when  test="number($right)!=$right and string-length($right)=1">
+       <times>
+       <const>
+       <xsl:value-of select="concat($texto,'_2')"/>
+       </const>
+       <var>
+       <xsl:value-of select="concat($texto,$left)"/>
+       </var>
+       </times>
+       
+       </xsl:when>
+  <!-- L: var    R: ninguna -->
+       <xsl:otherwise>
+       
+       <plus>
+       <xsl:call-template name="function">
+       <xsl:with-param name="node"  select="./child::*[2]"/>
+       </xsl:call-template>
+       <times>
+       <xsl:apply-templates select="./child::*[2]"/>
+       <var>
+       <xsl:value-of select="concat($texto,'_',$left)"/>
+       </var>
+       </times>
+       </plus>
+       
+       </xsl:otherwise>
+       </xsl:choose> 
+       </xsl:when>
+       </xsl:choose>
+       
+       <xsl:value-of select="$newline"/>
+       </xsl:template>
+       
+  <!-- DIVISION----------------------------------------------------------------------------------------------- -->
+       <xsl:template match="div" >
+       <xsl:variable name="left">
+       <xsl:apply-templates select="./child::*[1]"/>
+       </xsl:variable>
+       
+       <xsl:variable name="right">
+       <xsl:apply-templates select="./child::*[2]"/>
+       </xsl:variable>
+       
+       
+       
+       <xsl:choose>
+       
+       <xsl:when test="number($left)=$left">       
+       <xsl:choose>
+  <!-- L: cte    R: cte -->
+       <xsl:when test="number($right)=$right">
+       <const>
+       <xsl:value-of select="concat($texto,'_0')"/>
+       </const>
+       </xsl:when>
+       
+  <!-- L: cte    R: var -->
+       <xsl:when  test="number($right)!=$right and string-length($right)=1">
+       <subs>
+       <const>
+       <xsl:value-of select="concat($texto,'_0')"/>
+       </const>
+       <div>
+       <const>
+       <xsl:value-of select="concat($texto,'_',$left)"/>
+       </const>
+       <power>
+       <var>
+       <xsl:value-of select="concat($texto,$right)"/>
+       </var>
+       <const>
+       <xsl:value-of select="concat($texto,'_2')"/>
+       </const>
+       </power>
+       </div>
+       </subs>
+       
+       
+       </xsl:when>
+  <!-- L: cte    R: ninguna -->
+       <xsl:otherwise>
+       <subs>
+       <const>
+       <xsl:value-of select="concat($texto,'_0')"/>
+       </const>
+       <div>
+       <times>
+       <xsl:apply-templates select="./child::*[2]"/>
+       <const>
+       <xsl:value-of select="concat($texto,'_',$left)"/>
+       </const>
+       </times>
+       <power>
+       <xsl:call-template name="function">
+       <xsl:with-param name="node"  select="./child::*[2]"/>
+       </xsl:call-template>
+       <const>
+       <xsl:value-of select="concat($texto,'_2')"/>
+       </const>
+       </power>
+       </div>
+       </power>
+       
+       
+       </xsl:otherwise>
+       </xsl:choose>   
+       </xsl:when>
+       
+       <xsl:when test="number($left)!=$left and string-length($left)=1">
+       
+       <xsl:choose>
+  <!-- L: var    R: cte -->
+       <xsl:when test="number($right)=$right">
+       <div>
+       <const>
+       <xsl:value-of select="concat($texto,'_1')"/></const>
+       <const>
+       <xsl:value-of select="concat($texto,'_',$right)"/>
+       </const>
+       </div>
+       
+       </xsl:when>
+       
+  <!-- L: var    R: var -->
+       <xsl:when  test="number($right)!=$right and string-length($right)=1">
+       <const>
+       <xsl:value-of select="concat($texto,'_0')"/>
+       </const>
+       
+       </xsl:when>
+  <!-- L: var    R: ninguna -->
+       <xsl:otherwise>
+       <div>
+       <subs>
+       <xsl:call-template name="function">
+       <xsl:with-param name="node"  select="./child::*[2]"/>
+       </xsl:call-template>
+       <times>
+       <xsl:apply-templates select="./child::*[2]"/>
+       <var>
+       <xsl:value-of select="concat($texto,'_',$left)"/>
+       </var>
+       </times>
+       </subs>
+       <power>
+       <xsl:call-template name="function">
+       <xsl:with-param name="node"  select="./child::*[2]"/>
+       </xsl:call-template>
+       <const>
+       <xsl:value-of select="concat($texto,'_2')"/>
+       </const>
+       </power>
+       </div>
+       
+       
+       </xsl:otherwise>
+       
+       </xsl:choose> 
+       </xsl:when>
+       </xsl:choose>
+       
+       <xsl:value-of select="$newline"/>
+       </xsl:template>
+       
+  <!-- POTENCIA---------------------------------------------------------------------------------------------- -->
+       <xsl:template match="power" >
+       <xsl:variable name="left">
+       <xsl:apply-templates select="./child::*[1]"/>
+       </xsl:variable>
+       
+       <xsl:variable name="right">
+       <xsl:apply-templates select="./child::*[2]"/>
+       </xsl:variable>
+       
+       
+       
+       
+       <xsl:choose>
+       
+       <xsl:when test="number($left)=$left">       
+       <xsl:choose>
+  <!-- L: cte    R: cte -->
+       <xsl:when test="number($right)=$right">
+       <const>
+       <xsl:value-of select="concat($texto,'_0')"/>
+       </const>
+       </xsl:when>
+       
+  <!-- L: cte    R: var -->
+       <xsl:when  test="number($right)!=$right and string-length($right)=1">
+       <times>
+       <ln>
+       <const>
+       <xsl:value-of select="concat($texto,'_',$left)"/>
+       </const>       
+       </ln>
+       <power>
+       <const>
+       <xsl:value-of select="concat($texto,'_',$left)"/>
+       </const>
+       <var>
+       <xsl:value-of select="concat($texto,$right)"/>
+       </var>
+       </power>
+       </times>
+       </xsl:when>
+  <!-- L: cte    R: ninguna -->
+       <xsl:otherwise>
+       <const>
+       <xsl:value-of select="concat($texto,'_0000')"/>
+       </const>
+       
+       </xsl:otherwise>
+       </xsl:choose>   
+       </xsl:when>
+       
+       <xsl:when test="number($left)!=$left and string-length($left)=1">
+       
+       <xsl:choose>
+  <!-- L: var    R: cte -->
+       <xsl:when test="number($right)=$right">
+       <times>
+       <const>
+       <xsl:value-of select="concat($texto,'_',$right)"/>
+       </const>
+       <power>
+       <var>
+       <xsl:value-of select="concat($texto,'_',$left)"/>
+       </var>
+       <const>
+       <xsl:value-of select="concat($texto,'_')"/>
+       <xsl:value-of select="number($right)-1"/>
+       </const>
+       </power>
+       </times>
+       
+       </xsl:when>
+       
+  <!-- L: var    R: var -->
+       <xsl:when  test="number($right)!=$right and string-length($right)=1">
+       <times>
+       <power>
+       <var>
+       <xsl:value-of select="concat($texto,'_',$left)"/>
+       </var>
+       <var>
+       <xsl:value-of select="concat($texto,'_',$left)"/>
+       </var>
+       </power>
+       <plus>
+       <ln>
+       <var>
+       <xsl:value-of select="concat($texto,'_',$left)"/>
+       </var>
+       </ln>
+       <const>
+       <xsl:value-of select="concat($texto,'_1')"/>
+       </const>
+       </plus>
+       </const>
+       <const>
+       <xsl:value-of select="concat($texto,'_2')"/>
+       </const>
+       </xsl:when>
+  <!-- L: var    R: ninguna -->
+       <xsl:otherwise>
+       <const>
+       <xsl:value-of select="concat($texto,'_0000')"/>
+       </const>
+       
+       </xsl:otherwise>
+       </xsl:choose> 
+       </xsl:when>
+       </xsl:choose>
+       
+       <xsl:value-of select="$newline"/>
+       </xsl:template>
+       
+  <!-- CONSTANTE--------------------------------------------------------------------------------------------- -->
+       <xsl:template match="const" >
+       <xsl:value-of select="concat($texto,.)"/>
+       </xsl:template>
+       
+       
+  <!-- VARIABLE--------------------------------------------------------------------------------------------- -->
+       <xsl:template match="var" >
+       <xsl:value-of select="concat($texto,.)"/>
+       </xsl:template>
+       
+       </xsl:stylesheet>
