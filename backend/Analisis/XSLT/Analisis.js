@@ -5,7 +5,11 @@ const { xsltProcess, xmlParse } = require("xslt-processor");
 exports.Derivar = (xml) => {
   try {
     let xmlDerivada = getXSLT(xml);
-    return { mensaje: "Derivado!", respuesta: xmlDerivada };
+    const searchRegExp = /_/gi;
+    return {
+      mensaje: "Derivado!",
+      respuesta: xmlDerivada.replace(searchRegExp, " "),
+    };
   } catch (error) {
     console.log(error);
     return { mensaje: "Error", respuesta: "Error al Derivar!" };
