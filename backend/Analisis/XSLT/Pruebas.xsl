@@ -89,3 +89,5 @@
         </xsl:otherwise>
       </xsl:choose>
     </xsl:otherwise>
+    
+    <xsl:value-of select="concat($texto,'_0000')"/>

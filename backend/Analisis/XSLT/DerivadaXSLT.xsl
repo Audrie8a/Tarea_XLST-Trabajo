@@ -368,7 +368,7 @@
      <!-- L: cte    R: var -->
           <xsl:when  test="number($right)!=$right and string-length($right)=1">
           <const>
-          <xsl:value-of select="concat($texto,'_0')"/>
+          <xsl:value-of select="concat($texto,'_',$left)"/>
           </const>
           </xsl:when>
      <!-- L: cte    R: ninguna -->
@@ -657,7 +657,7 @@
           <xsl:otherwise>
           
           <div>
-          <plus>
+          <subs>
           <times>
           <xsl:apply-templates select="./child::*[1]"/>
           <xsl:call-template name="function">
@@ -671,7 +671,7 @@
           <xsl:with-param name="node"  select="./child::*[1]"/>
           </xsl:call-template>
           </times>
-          </plus>          
+          </subs>          
           <power>
           <xsl:call-template name="function">
           <xsl:with-param name="node"  select="./child::*[2]"/>
@@ -810,7 +810,7 @@
           </const>
           <power>
           <xsl:call-template name="function">
-          <xsl:with-param name="node"  select="./child::*[2]"/>
+          <xsl:with-param name="node"  select="./child::*[1]"/>
           </xsl:call-template>
           <const>
           <xsl:value-of select="concat($texto,'_')"/>
