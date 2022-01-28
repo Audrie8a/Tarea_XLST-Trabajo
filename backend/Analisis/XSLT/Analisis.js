@@ -44,5 +44,5 @@ function getXSLT(xml) {
   const outXmlString = xsltProcess(xmlParse(xml), xmlParse(xsl));
   console.log(outXmlString.replace(searchRegExp, " "));
   write_Files("Resultado.html", outXmlString.replace(searchRegExp, " "));
-  return outXmlString;
+  return outXmlString.replace(searchRegExp, " ");
 }
