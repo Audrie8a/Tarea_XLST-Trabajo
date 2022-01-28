@@ -12,5 +12,13 @@
   </xsl:text></xsl:variable>
   
   <xsl:template match ="/">    
-    
+    <xsl:choose>
+      <!-- ./child::*[1] -->
+      <xsl:when test="name(./ancestor)='f'">
+        
+      </xsl:when>
+      <xsl:otherwise>
+        
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>

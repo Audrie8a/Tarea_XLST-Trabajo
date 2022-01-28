@@ -5,10 +5,10 @@ const { xsltProcess, xmlParse } = require("xslt-processor");
 exports.Derivar = (xml) => {
   try {
     let xmlDerivada = getXSLT(xml);
-    const searchRegExp = /_/gi;
+
     return {
       mensaje: "Derivado!",
-      respuesta: xmlDerivada.replace(searchRegExp, " "),
+      respuesta: xmlDerivada,
     };
   } catch (error) {
     console.log(error);
@@ -40,8 +40,9 @@ function read_Files(name) {
 function getXSLT(xml) {
   const xsl = read_Files("DerivadaXSLT.xsl");
 
+  const searchRegExp = /_/gi;
   const outXmlString = xsltProcess(xmlParse(xml), xmlParse(xsl));
-  console.log(outXmlString);
-  write_Files("Resultado.html", outXmlString);
+  console.log(outXmlString.replace(searchRegExp, " "));
+  write_Files("Resultado.html", outXmlString.replace(searchRegExp, " "));
   return outXmlString;
 }
